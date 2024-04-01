@@ -39,4 +39,28 @@ public class ChartController {
         return data;
     }
 
+    //故障类型频率表格
+    @RequestMapping("/faultType")
+    public List<Map<String, Object>> getFaultTypeChart(){
+        String sql = "SELECT JYT_Fault_type.F_Category_name, COUNT(JYT_Claim_Main.F_KGFlag) as faultType_count " +
+                "FROM JYT_Claim_Main " +
+                "JOIN JYT_Fault_type ON JYT_Claim_Main.F_KGFlag = JYT_Fault_type.F_Category_ID " +
+                "GROUP BY JYT_Fault_type.F_Category_name LIMIT 10;";
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(sql);
+        return data;
+    }
+
+    //故障更换部件图表
+    @RequestMapping("/faultComponent")
+    public List<Map<String, Object>> getFaultComponentChart(){
+        String sql = "SELECT JYT_Claim_Main.F_PART, COUNT(*) AS C " +
+                "FROM JYT_Claim_Main " +
+                "GROUP BY JYT_Claim_Main.F_PART " +
+                "ORDER BY C DESC LIMIT 10;";
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(sql);
+        return data;
+    }
+
 }
