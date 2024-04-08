@@ -87,4 +87,23 @@ public class ClainMainController {
     }
 
 
+    //获取车系选择列表
+    @RequestMapping("/getCarSeries")
+    public List<Map<String, Object>> getCarSeries(){
+        String sql = "SELECT DISTINCT F_ProSerie FROM JYT_Claim_Main " +
+                "WHERE F_ProSerie IS NOT NULL AND F_ProSerie <> '';";
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(sql);
+        return data;
+    }
+
+    //获取品牌选择列表
+    @RequestMapping("/getCarModel")
+    public List<Map<String, Object>> getCarModel(){
+        String sql = "SELECT DISTINCT F_ProModel FROM JYT_Claim_Main " +
+                "WHERE F_ProModel IS NOT NULL AND F_ProModel <> '';";
+
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(sql);
+        return data;
+    }
 }
