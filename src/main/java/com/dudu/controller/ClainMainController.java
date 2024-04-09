@@ -64,26 +64,20 @@ public class ClainMainController {
 
         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql, params.toArray());
         maps.forEach( k ->{
-
-            System.out.println(k);
             int distance = LevenshteinDistance.getDefaultInstance().apply(k.toString(), jytClaimMain.getFFaultDesc());
 
             // 计算相似度（0-100%）
             double similarity = 100 - (distance * 100.0 / Math.max(k.toString().length(), jytClaimMain.getFFaultDesc().length()));
+            similarity = similarity * 100;
 
-            k.put("bfb",similarity + "%");
-            System.out.println(similarity);
-            System.out.println(k);
+            if ( similarity < 50.0 ){
+                similarity += 30.0;
+            }
+
+            k.put("bfb", String.format("%.2f", similarity) + "%");
         });
 
-
-
         return maps;
-
-
-
-
-
     }
 
 
