@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.xm.Similarity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,15 @@ public class ClainMainController {
 
 
         if (!StringUtils.isEmpty(jytClaimMain.getFKGFlag())) {
+            //查询该故障系统的对应序号
+            String sql1 = "SELECT F_Category_ID " +
+                    "FROM JYT_Fault_type " +
+                    "WHERE F_Category_name = ?;";
+
+            String fKGFlag = jdbcTemplate.queryForObject(sql1, String.class, jytClaimMain.getFKGFlag());
+
             sqlBuilder.append(" AND F_KGFlag = ?");
-            params.add(jytClaimMain.getFKGFlag());
+            params.add(fKGFlag);
         }
 
         if (!StringUtils.isEmpty(jytClaimMain.getFProModel())) {
@@ -47,43 +55,13 @@ public class ClainMainController {
             params.add(jytClaimMain.getMax());
         }
 
-
-
-        if (!StringUtils.isEmpty(jytClaimMain.getFFaultDesc())) {
-            sqlBuilder.append(" AND F_FaultDesc LIKE ?");
-            // 将故障关键词添加模糊匹配的百分号
-            params.add("%" + jytClaimMain.getFFaultDesc() + "%");
-        }
-
-
         String sql = sqlBuilder.toString();
         System.out.println(sql);
 
-
-
-
         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql, params.toArray());
-        ArrayList<Map<String, Object>> dellist = new ArrayList<>();
-        maps.forEach( k ->{
-            int distance = LevenshteinDistance.getDefaultInstance().apply(k.toString(), jytClaimMain.getFFaultDesc());
-
-            // 计算相似度（0-100%）
-            double similarity = 100 - (distance * 100.0 / Math.max(k.toString().length(), jytClaimMain.getFFaultDesc().length()));
-            similarity = similarity * 100;
-
-            if ( similarity < 61.0 ){
-                similarity += 30.0;
-            }
-            
-            if ( similarity < 50.0 ){
-                //这个结果不要了
-                dellist.add(k);
-            }
-            k.put("bfb", String.format("%.2f", similarity) + "%");
-        });
-
-        for (Map<String, Object> item : dellist) {
-            maps.remove(item);
+        for (Map<String, Object> map : maps) {
+            double morphoSimilarityResult = Similarity.morphoSimilarity((String) map.get("F_FaultDesc"), jytClaimMain.getFFaultDesc());
+            map.put("bfb", String.format("%.2f", morphoSimilarityResult*100) + "%");
         }
 
         return maps;
