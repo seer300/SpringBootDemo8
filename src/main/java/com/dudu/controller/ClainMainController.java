@@ -61,7 +61,7 @@ public class ClainMainController {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql, params.toArray());
         for (Map<String, Object> map : maps) {
             double morphoSimilarityResult = Similarity.morphoSimilarity((String) map.get("F_FaultDesc"), jytClaimMain.getFFaultDesc());
-            map.put("bfb", String.format("%.2f", morphoSimilarityResult*100) + "%");
+            map.put("bfb", Double.valueOf( String.format("%.2f", morphoSimilarityResult*100) ));
         }
 
         return maps;
