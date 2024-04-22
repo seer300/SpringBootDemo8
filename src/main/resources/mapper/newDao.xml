@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dudu.dao.newDao">
+
+    <select id="queryLearnResouceList" parameterType="map" resultType="com.dudu.domain.LearnResouce">
+        SELECT * FROM learn_resource
+        WHERE 1=1
+        <if test="params.author != null and params.author != ''">
+            AND author LIKE CONCAT('%', #{params.author}, '%')
+        </if>
+        <if test="params.title != null and params.title != ''">
+            AND title LIKE CONCAT('%', #{params.title}, '%')
+        </if>
+        LIMIT #{params.page}, #{params.rows}
+    </select>
+
+    <select id="countLearnResouceList" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM learn_resource
+        WHERE 1=1
+        <if test="params.author != null and params.author != ''">
+            AND author LIKE CONCAT('%', #{params.author}, '%')
+        </if>
+        <if test="params.title != null and params.title != ''">
+            AND title LIKE CONCAT('%', #{params.title}, '%')
+        </if>
+    </select>
+</mapper>

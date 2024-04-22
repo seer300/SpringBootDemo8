@@ -1,5 +1,6 @@
 package com.dudu.tools;
 
+import com.dudu.domain.LearnResouce;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public class Page {
     private int lastIndex;
     //结果集存放List
     private List<Map<String, Object>> resultList;
+    // 新增：结果集存放 List<LearnResouce>
+    private List<LearnResouce> learnResouceList;
 
 
     /**分页构造函数
@@ -52,6 +55,7 @@ public class Page {
         setStartIndex();
         //计算结束行数
         setLastIndex();
+
         System.out.println("lastIndex="+lastIndex);
         //使用mysql时直接使用limits
         StringBuffer paginationSQL = new StringBuffer();
@@ -59,6 +63,20 @@ public class Page {
         paginationSQL.append(" limit " + startIndex + "," + lastIndex);
         //装入结果集
         setResultList(jdbcTemplate.queryForList(paginationSQL.toString()));
+    }
+
+    // 新增：构造函数，接受 List<LearnResouce>
+    public Page(List<LearnResouce> learnResouceList, int totalRows, int currentPage, int numPerPage) {
+        this.learnResouceList = learnResouceList;
+        this.totalRows = totalRows;
+        this.currentPage = currentPage;
+        this.numPerPage = numPerPage;
+        setTotalPages();
+        setStartIndex();
+        setLastIndex();
+    }
+
+    public Page(List<LearnResouce> list, int page, int rows) {
     }
 
     public int getCurrentPage() {
@@ -130,5 +148,13 @@ public class Page {
         }else if(totalRows % numPerPage != 0 && currentPage == totalPages){//最后一页
             this.lastIndex = totalRows ;
         }
+    }
+    // 新增：获取 learnResouceList
+    public List<LearnResouce> getLearnResouceList() {
+        return learnResouceList;
+    }
+
+    public void setLearnResouceList(List<LearnResouce> learnResouceList) {
+        this.learnResouceList = learnResouceList;
     }
 }
